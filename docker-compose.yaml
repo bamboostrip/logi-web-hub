@@ -1,0 +1,17 @@
+# logi-web-hub 自托管：docker compose up -d --build
+# 本机验证：http://服务器IP:8080
+#
+# 注意 WebHID 必须跑在安全上下文（https 或 localhost），公网域名请在前面套一层
+# TLS 终结再反代到 8080，例如：
+#   - Nginx Proxy Manager / Caddy / Traefik 申请 logi-hub.famlife.top 证书并反代
+# 本 compose 只管 80 端口静态托管，不管证书。
+name: logi-web-hub
+
+services:
+  web:
+    build: .
+    image: logi-web-hub:latest
+    container_name: logi-web-hub
+    ports:
+      - "8080:80"
+    restart: unless-stopped

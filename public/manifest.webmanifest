@@ -1,0 +1,12 @@
+{
+  "name": "Logi Web Hub · 纯网页罗技驱动",
+  "short_name": "LogiHub",
+  "description": "GPW1 + G304/G305 纯网页调 DPI，对标 ATK Hub，深浅色自适应。",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#eef0f3",
+  "theme_color": "#eef0f3",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

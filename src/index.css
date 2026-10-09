@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============ 主题变量：浅色默认，.dark 切深色 ============ */
+:root {
+  color-scheme: light;
+  --bg: #eef0f3;
+  --bg-soft: #f6f7f9;
+  --text: #16181d;
+  --text-2: #5b6472;
+  --text-3: #9aa3b2;
+  --card: rgba(255, 255, 255, 0.82);
+  --card-border: rgba(20, 25, 40, 0.08);
+  --input-bg: rgba(20, 25, 40, 0.05);
+  --pill-bg: #111318;
+  --pill-text: #ffffff;
+  --accent: #4f7cff;
+  --accent-soft: rgba(79, 124, 255, 0.12);
+  --shadow-card: 0 12px 40px rgba(25, 35, 60, 0.1);
+  --grid-line: rgba(20, 25, 40, 0.06);
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: #05070d;
+  --bg-soft: #0a0d16;
+  --text: #e8ecf4;
+  --text-2: #9aa6bd;
+  --text-3: #5d6a82;
+  --card: linear-gradient(160deg, rgba(20, 26, 40, 0.85), rgba(10, 13, 22, 0.75));
+  --card-border: rgba(120, 160, 255, 0.14);
+  --input-bg: rgba(0, 0, 0, 0.4);
+  --pill-bg: #f2f4f8;
+  --pill-text: #111318;
+  --accent: #5b8cff;
+  --accent-soft: rgba(91, 140, 255, 0.15);
+  --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --grid-line: rgba(140, 170, 255, 0.07);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-system, -apple-system, "Segoe UI", Roboto, "Noto Sans SC",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow-x: hidden;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+/* DPI 数字等宽发光：深色强发光，浅色改成淡投影 */
+.font-dpi {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+.dark .font-dpi {
+  text-shadow: 0 0 24px rgba(80, 140, 255, 0.55);
+}
+:root:not(.dark) .font-dpi {
+  text-shadow: 0 2px 18px rgba(79, 124, 255, 0.22);
+}
+
+/* 玻璃拟态卡片：双主题 */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+  transition: background 0.35s ease, border-color 0.35s ease;
+}
+
+.atk-input {
+  background: var(--input-bg);
+  border: 1px solid transparent;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.atk-input:focus {
+  border-color: var(--accent);
+}
+
+/* 主按钮（黑丸/深色模式白丸）与开关：统一走主题变量 */
+.btn-pill {
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+.btn-pill:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn-pill:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn-ghost {
+  background: var(--input-bg);
+  color: var(--text-2);
+  transition: opacity 0.15s ease;
+}
+.btn-ghost:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+/* toast 入场动画 */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.toast-in {
+  animation: toast-in 0.22s ease-out;
+}
+
+/* 面板卡片入场 */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.panel-in {
+  animation: panel-in 0.28s ease-out;
+}
+
+/* DPI 步进器：只留一套自定义加减，隐藏 number 原生小箭头（避免截图里两套箭头打架） */
+input.dpi-no-spin::-webkit-outer-spin-button,
+input.dpi-no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input.dpi-no-spin {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* 全站细滚动条 */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(130, 140, 160, 0.35);
+  border-radius: 8px;
+}
+.dark *::-webkit-scrollbar-thumb {
+  background: rgba(120, 150, 255, 0.25);
+}
+
+/* shader 降级渐变（WebGL 不可用时） */
+.shader-fallback {
+  background:
+    radial-gradient(60% 45% at 70% 30%, rgba(120, 150, 255, 0.16), transparent 70%),
+    radial-gradient(50% 40% at 30% 70%, rgba(180, 130, 255, 0.12), transparent 70%),
+    var(--bg);
+}
+.dark.shader-fallback {
+  background:
+    radial-gradient(60% 45% at 70% 30%, rgba(80, 130, 255, 0.14), transparent 70%),
+    radial-gradient(50% 40% at 30% 70%, rgba(150, 100, 255, 0.1), transparent 70%),
+    var(--bg);
+}
+
+/* range 滑杆 */
+input[type="range"].atk-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent) var(--fill, 30%), rgba(130, 140, 160, 0.3) var(--fill, 30%));
+  outline: none;
+}
+input[type="range"].atk-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+input[type="range"].atk-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  cursor: pointer;
+}
