@@ -78,7 +78,7 @@ export default function SideBar() {
             <br />
             {t(locale, 'side.boardGroups', { n: profileCount })}{onboardRealCount != null ? t(locale, 'side.boardReal') : t(locale, 'side.boardFile')}{onboardMode === 0x01 ? t(locale, 'side.boardActive') : onboardMode === 0x02 ? t(locale, 'side.hostTakeover') : ''}{t(locale, 'side.dpiSlots', { n: info?.dpiSlots ?? 4 })}
             <br />
-            {t(locale, 'side.rangeStep', { min: info?.dpiMin, max: info?.dpiMax, step: info?.dpiStep })}
+            {t(locale, 'side.rangeStep', { min: info?.dpiMin ?? 100, max: info?.dpiMax ?? 16000, step: info?.dpiStep ?? 50 })}
           </div>
         )}
       </button>
