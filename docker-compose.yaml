@@ -1,5 +1,8 @@
-# logi-web-hub 自托管：docker compose up -d --build
+# logi-web-hub 自托管：docker compose up -d
 # 本机验证：http://服务器IP:8080
+#
+# 镜像跟随 Docker Hub 的 latest（GitHub Action 在 main 上自动构建推送），
+# 服务器上先 docker compose pull 再 up -d 即可更新。
 #
 # 注意 WebHID 必须跑在安全上下文（https 或 localhost），公网域名请在前面套一层
 # TLS 终结再反代到 8080，例如：
@@ -9,8 +12,11 @@ name: logi-web-hub
 
 services:
   web:
-    build: .
-    image: logi-web-hub:latest
+    # 发布镜像：日常部署直接拉取（pull_policy 保证 up 时先拉最新）
+    image: bamboostrip/logi-web-hub:latest
+    pull_policy: always
+    # 本地构建改用：注释掉上面两行，取消下面这行的注释
+    # build: .
     container_name: logi-web-hub
     ports:
       - "8080:80"
