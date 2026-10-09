@@ -1,0 +1,118 @@
+name: Build and Push logi-web-hub Image
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# GHCR 推送需要 packages:write；Docker Hub 用 secrets，不需要额外权限
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Set IMAGE_TAG
+      id: tag
+      run: |
+        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+        BUILD_DATE=$(date +%Y%m%d)
+        if git describe --tags --exact-match HEAD 2>/dev/null; then
+          GIT_TAG=$(git describe --tags --exact-match HEAD)
+          IMAGE_TAG="${GIT_TAG}"
+        else
+          IMAGE_TAG="${BUILD_DATE}-${SHORT_SHA}"
+        fi
+        echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+        echo "构建标签: ${IMAGE_TAG}"
+        # 镜像名统一小写（Docker tag 不允许大写）
+        echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # PR 仅构建验证，不推送
+    - name: Build (PR check only)
+      if: github.event_name == 'pull_request'
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        platforms: linux/amd64
+        push: false
+
+    # GHCR：无需注册，用内置 GITHUB_TOKEN 即可推送到 ghcr.io/<owner>/<repo>
+    - name: Log in to GHCR
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push to GHCR
+      if: github.event_name != 'pull_request'
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ghcr.io/${{ env.REPO_LC }}:${{ env.IMAGE_TAG }}
+          ghcr.io/${{ env.REPO_LC }}:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    # Docker Hub：仓库 Settings → Secrets → Actions 里已添加
+    # DOCKER_HUB_USERNAME / DOCKER_HUB_PASSWORD（密码用 Access Token）。
+    # 注意：if 里不能用 secrets 上下文（workflow_dispatch 会 422），
+    # 这里用 continue-on-error + steps 出参来判断是否登录成功。
+    - name: Log in to Docker Hub
+      id: dockerhub_login
+      if: github.event_name != 'pull_request'
+      continue-on-error: true
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    - name: Build and push to Docker Hub
+      if: steps.dockerhub_login.outcome == 'success'
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ${{ env.REPO_LC }}:${{ env.IMAGE_TAG }}
+          ${{ env.REPO_LC }}:latest
+        cache-from: type=gha
+
+    - name: Sync README to Docker Hub
+      if: steps.dockerhub_login.outcome == 'success'
+      run: |
+        TOKEN=$(curl -s -X POST https://hub.docker.com/v2/users/login/ \
+          -H "Content-Type: application/json" \
+          -d "{\"username\":\"${{ secrets.DOCKER_HUB_USERNAME }}\",\"password\":\"${{ secrets.DOCKER_HUB_PASSWORD }}\"}" | jq -r .token)
+        if [ -z "${TOKEN}" ] || [ "${TOKEN}" = "null" ]; then
+          echo "Docker Hub 登录失败，跳过 README 同步"
+          exit 0
+        fi
+        jq -Rs '.' README.md > /tmp/readme.json
+        curl -s -X PATCH "https://hub.docker.com/v2/repositories/${{ env.REPO_LC }}/" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: JWT ${TOKEN}" \
+          -d "{\"full_description\":$(cat /tmp/readme.json)}"
+        echo "README 同步完成"
