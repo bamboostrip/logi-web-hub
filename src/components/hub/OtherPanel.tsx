@@ -71,6 +71,26 @@ export function OtherPanel() {
       </div>
       <div className="rounded-xl p-4 text-[11px] leading-5" style={{ background: 'var(--bg-soft)', border: '1px solid var(--card-border)', color: 'var(--text-3)' }}>
         {t(locale, 'other.about')}
+        <div className="mt-2 flex flex-wrap gap-2">
+          <a
+            href="https://github.com/bamboostrip/logi-web-hub"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-80"
+            style={{ background: 'var(--input-bg)', color: 'var(--text)' }}
+          >
+            {t(locale, 'other.repo')} ↗
+          </a>
+          <a
+            href="https://logi-hub.famlife.top"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-80"
+            style={{ background: 'var(--input-bg)', color: 'var(--text)' }}
+          >
+            {t(locale, 'other.demo')} ↗
+          </a>
+        </div>
       </div>
     </div>
   );

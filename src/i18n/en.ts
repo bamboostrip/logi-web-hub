@@ -343,6 +343,8 @@ export const en: Record<I18nKey, string> = {
   'other.clearCache': 'Clear local cache',
   'other.disconnect': 'Disconnect device',
   'other.about': 'Logi Web Hub · a pure-web Logitech mouse console. Requires Chrome / Edge 89+ over https / localhost (WebHID limits). G304 has no RGB; Bluetooth is unsupported — use a 2.4G receiver or cable.',
+  'other.repo': 'GitHub repo',
+  'other.demo': 'Live demo',
   'other.settings': 'Settings',
 
   // ---- shared ----

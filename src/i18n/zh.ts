@@ -341,6 +341,8 @@ export const zh = {
   'other.clearCache': '清空本地缓存',
   'other.disconnect': '断开设备',
   'other.about': 'Logi Web Hub · 纯网页罗技鼠标配置工具。需 Chrome / Edge 89+ 且 https / localhost（WebHID 限制）。G304 无 RGB；蓝牙模式不支持，请用 2.4G 接收器或连接线。',
+  'other.repo': 'GitHub 仓库',
+  'other.demo': '在线体验',
   'other.settings': '设置',
 
   // ---- 通用 ----
